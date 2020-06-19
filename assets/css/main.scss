@@ -23,16 +23,29 @@ table{
 }
 
 #tabela-materiais{
-    overflow-y: scroll;
-    max-height: 20vh;
+    //overflow-y: scroll;
+    //max-height: 20vh;
+    table thead{
+        //position: fixed;
+        overflow-y: scroll;
+        display: block;
+        font-size: 11px;
+        text-transform: uppercase;
+    }
     table tbody{
+        display: block;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        max-height: 20vh;
         tr{
             transition: .15s linear;
         }
         .active-row{
-            border: 4px solid #5858FA;
-            background: #fafafa;
+            background: #D0FA58;
         }
+    }
+    .col-1,.col-2,.col-3,.col-4{
+        padding: 3px 5px;
     }
 }
 

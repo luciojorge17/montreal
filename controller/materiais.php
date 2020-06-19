@@ -23,20 +23,20 @@ switch ($action) {
         $consulta = odbc_exec($conexao, $select);
         if (odbc_num_rows($consulta) > 0) {
             $retorno['produtos'] = '
-                    <table class="table table-sm table-hover">
-                        <thead class="thead-dark text-light">
-                            <tr>
-                                <th scope="col">Descrição</th>
-                                <th scope="col">Código</th>
-                                <th scope="col">Código fabricante</th>
-                                <th scope="col" class="text-center">UN</th>
-                                <th scope="col">Localização</th>
-                                <th scope="col" class="text-center">Ativo</th>
-                                <th scope="col" class="text-right">Valor Venda</th>
-                                <th scope="col">Informação complementar</th>
+                    <table class="table table-sm table-hover table-responsive w-100 d-block d-md-table">
+                        <thead class="thead-dark text-light container-fluid">
+                            <tr class="row">
+                                <th scope="col" class="col-2">Descrição</th>
+                                <th scope="col" class="col-1">Código</th>
+                                <th scope="col" class="col-1">Cód. fabricante</th>
+                                <th scope="col" class="text-center col-1">UN</th>
+                                <th scope="col" class="col-1">Localização</th>
+                                <th scope="col" class="text-center col-1">Ativo</th>
+                                <th scope="col" class="text-right col-1">Valor Venda</th>
+                                <th scope="col" class="col-4">Informação complementar</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="container-fluid">
                 ';
             while (odbc_fetch_row($consulta)) {
                 $contador++;
@@ -57,15 +57,15 @@ switch ($action) {
                 $valor_venda = number_format(odbc_result($consulta, 'vl_venda'), 2, ",", ".");
                 $observacoes = utf8_encode(odbc_result($consulta, 'ds_obs'));
                 $retorno['produtos'] .= '
-                        <tr id="index-' . $contador . '" data-produto="'.$codigo.'" tabindex="' . $contador . '" onclick="listaDadosMaterial(this,' . $codigo . ')" style="cursor: pointer;">
-                            <th scope="row">' . $nome_material   . '</th>
-                            <td>' . $codigo . '</td>
-                            <td>' . $codigo_fabricante . '</td>
-                            <td class="text-center">' . $un . '</td>
-                            <td>' . $localizacao . '</td>
-                            <td class="text-center">' . $ativo . '</td>
-                            <td class="text-right">' . $valor_venda . '</td>
-                            <td>' . $observacoes . '</td>
+                        <tr id="index-' . $contador . '" data-produto="'.$codigo.'" tabindex="' . $contador . '" onclick="listaDadosMaterial(this,' . $codigo . ')" style="cursor: pointer;" class="row">
+                            <th scope="row" class="col-2">' . $nome_material   . '</th>
+                            <td class="col-1">' . $codigo . '</td>
+                            <td class="col-1">' . $codigo_fabricante . '</td>
+                            <td class="text-center col-1">' . $un . '</td>
+                            <td class="col-1">' . $localizacao . '</td>
+                            <td class="text-center col-1">' . $ativo . '</td>
+                            <td class="text-right col-1">' . $valor_venda . '</td>
+                            <td class="col-4">' . $observacoes . '</td>
                         </tr>
                     ';
             }
@@ -92,7 +92,7 @@ switch ($action) {
         $ncm = '';
         $cest = '';
         $estoque = '';
-        $fotoProduto = '<img class="img-fluid" src="../assets/images/no-image.png" alt="" style="width: 300px"/>';
+        $fotoProduto = '<img class="" src="../assets/images/no-image.png" alt="" style="max-height:200px;"/>';
         $select_info_tecnica = "SELECT DS_PRODUCAO FROM SEL_MATERIAIS_INFORMACOES_TECNICAS WHERE CD_MATERIAL = $id";
         $consulta_info_tecnica = odbc_exec($conexao, $select_info_tecnica);
         if (odbc_num_rows($consulta_info_tecnica) > 0) {
@@ -113,7 +113,7 @@ switch ($action) {
                 $cest = odbc_result($consulta, 'cd_cest');
                 $imagem = base64_encode(odbc_result($consulta, "im_foto"));
                 if (!empty($imagem)) {
-                    $fotoProduto = '<img class="img-fluid" src="data:image/jpeg;base64,' . $imagem . '" alt="" width="300px">';
+                    $fotoProduto = '<img class="" src="data:image/jpeg;base64,' . $imagem . '" alt="" style="max-height: 200px">';
                 }
             }
         }
