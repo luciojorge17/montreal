@@ -1,0 +1,3 @@
+1 - WampServer -> PHP -> php.ini
+2 - Localizar "odbc.defaultlrl" (sem aspas) -> alterar o valor de 4096 para 60000 -> Salvar
+3 - Wampserver -> Restart all services

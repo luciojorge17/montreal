@@ -53,7 +53,7 @@ switch ($action) {
 
             /** Itens do pedido */
             $select_itens =
-                "SELECT CD_ITEM, CD_MATERIAL,CD_IDENTIFICACAO, DS_MATERIAL, NR_QUANTIDADE, VL_UNITARIO,VL_TOTAL_LIQUIDO FROM SEL_PEDIDOS_ITENS WHERE CD_PEDIDO = $pesquisa";
+                "SELECT CD_ITEM, CD_MATERIAL,CD_IDENTIFICACAO, DS_MATERIAL, NR_QUANTIDADE, VL_UNITARIO, PR_DESCONTO, VL_DESCONTO,VL_TOTAL_LIQUIDO FROM SEL_PEDIDOS_ITENS WHERE CD_PEDIDO = $pesquisa";
             $consulta_itens = odbc_exec($conexao, $select_itens);
             if (odbc_num_rows($consulta_itens) > 0) {
                 $retorno['itens'] = '
@@ -66,6 +66,8 @@ switch ($action) {
                             <th scope="col">Material</th>
                             <th scope="col" class="text-center">Quantidade</th>
                             <th scope="col" class="text-right">Vl. Unitário</th>
+                            <th scope="col" class="text-right">Desconto (%)</th>
+                            <th scope="col" class="text-right">Desconto (R$)</th>
                             <th scope="col" class="text-right">Total</th>
                         </tr>
                     </thead>
@@ -78,6 +80,8 @@ switch ($action) {
                     $material = utf8_encode(odbc_result($consulta_itens, 'ds_material'));
                     $quantidade = number_format(odbc_result($consulta_itens, 'nr_quantidade'), 0, "", "");
                     $valor_unitario = number_format(odbc_result($consulta_itens, 'vl_unitario'), 2, ",", ".");
+                    $valor_desconto = number_format(odbc_result($consulta_itens, 'vl_desconto'), 2, ",", ".");
+                    $percentual_desconto = number_format(odbc_result($consulta_itens, 'pr_desconto'), 2, ".", "");
                     $valor_total = number_format(odbc_result($consulta_itens, 'vl_total_liquido'), 2, ",", ".");
                     $retorno['itens'] .= '
                     <tr>
@@ -88,6 +92,12 @@ switch ($action) {
                         <td class="text-center">' . $quantidade . '</td>
                         <td class="text-right">
                             <input type="text" name="unitario-item-' . $item . '" class="form-control form-control-sm text-right valorAlteracao" value="' . $valor_unitario . '" onchange="alteraValor(this.value, ' . $quantidade . ', ' . $item . ');">
+                        </td>
+                        <td class="text-right">
+                            <input type="text" name="pr-desconto-item-' . $item . '" class="form-control form-control-sm text-right percentualDescontoAlteracao" value="' . $percentual_desconto . '" onchange="alteraPercentualDesconto(this.value, '.odbc_result($consulta_itens,"vl_unitario").', ' . $quantidade . ', ' . $item . ');">
+                        </td>
+                        <td class="text-right">
+                            <input type="text" name="vl-desconto-item-' . $item . '" class="form-control form-control-sm text-right valorDescontoAlteracao" value="' . $valor_desconto . '" onchange="alteraValorDesconto(this.value, ' . $quantidade . ', ' . $item . ');">
                         </td>
                         <td id="total-item-' . $item . '" class="text-right valorTotalItem">' . $valor_total . '</td>
                     </tr>
@@ -224,7 +234,9 @@ switch ($action) {
         $motivo = $_POST['motivo'];
         $codigoUsuario = $_SESSION['id_usuario'];
         $nomeUsuario = $_SESSION['nome_usuario'];
-        $total = 0;
+        $total_bruto = 0;
+        $total_liquido = 0;
+        $desconto_itens = 0;
         foreach ($dados as $d) {
             $temp = explode('|',$d);
             $arr = $temp[0];
@@ -241,16 +253,23 @@ switch ($action) {
             $valor_unitario = $temp[1];
             $valor_unitario = str_replace(".","",$valor_unitario);
             $valor_unitario = str_replace(",",".",$valor_unitario);
-            $valor_total = $valor_unitario * $quantidade;
-            $total += $valor_total;
+            $valor_desconto = $temp[2];
+            $valor_desconto = str_replace(".","",$valor_desconto);
+            $valor_desconto = str_replace(",",".",$valor_desconto);
+            $percentual_desconto = $temp[3];
+            $valor_total_bruto = ($valor_unitario * $quantidade);
+            $valor_total_liquido = ($valor_unitario * $quantidade) - $valor_desconto;
+            $total_bruto += $valor_total_bruto;
+            $total_liquido += $valor_total_liquido;
+            $desconto_itens += $valor_desconto;
             $data = date('Y-d-m H:i:s').".000";
-            $update = "UPDATE TBL_PEDIDOS_ITENS SET CD_USUARIOAT=$codigoUsuario,DT_ATUALIZACAO='$data',VL_UNITARIO=$valor_unitario,VL_TOTAL=$valor_total,DS_MOTIVO_VL_UNITARIO='$motivo',VL_DESCONTO=0,VL_UNITARIO_MOEDA=$valor_unitario,VL_TOTAL_MOEDA=$valor_total WHERE CD_PEDIDO=$codigo AND CD_ITEM=$cd_item";
+            $update = "UPDATE TBL_PEDIDOS_ITENS SET CD_USUARIOAT=$codigoUsuario,CD_USUARIO_AUTORIZOU_DESCONTO=$codigoUsuario,DT_ATUALIZACAO='$data',VL_UNITARIO=$valor_unitario,VL_DESCONTO=$valor_desconto,VL_DESCONTO_ITEM=$valor_desconto,PR_DESCONTO=$percentual_desconto,VL_TOTAL=$valor_total_bruto,DS_MOTIVO_VL_UNITARIO='$motivo',VL_UNITARIO_MOEDA=$valor_unitario,VL_TOTAL_MOEDA=$valor_total_bruto WHERE CD_PEDIDO=$codigo AND CD_ITEM=$cd_item";
             odbc_exec($conexao, $update);
             $procedure = "EXEC SP_CALCULA_IMPOSTOS_PEDIDOS $codigo, $cd_item, $cme, $cd_material";
             odbc_exec($conexao, $procedure);
         }
         $data = date('Y-d-m H:i:s').".000";
-        $updatePedido = "UPDATE TBL_PEDIDOS SET CD_USUARIOAT=$codigoUsuario,DT_ATUALIZACAO='$data',VL_TOTAL=$total,VL_DESCONTO=0,VL_DESCONTO_ITENS=0 WHERE CD_PEDIDO=$codigo";
+        $updatePedido = "UPDATE TBL_PEDIDOS SET CD_USUARIOAT=$codigoUsuario,DT_ATUALIZACAO='$data',VL_TOTAL=$total_bruto,VL_DESCONTO_ITENS=$desconto_itens WHERE CD_PEDIDO=$codigo";
         odbc_exec($conexao, $updatePedido);
 
         $vencimentos = [];
@@ -274,7 +293,7 @@ switch ($action) {
 
             for ($n = 1; $n <= $numeroParcelas; $n++) {
 
-                $valor_parcela = $total / $numeroParcelas;
+                $valor_parcela = $total_liquido / $numeroParcelas;
                 $vencimento = date('Y-d-m H:i:s', strtotime($vencimentos[$n])).".000";
 
                 $insertParcelas = "INSERT INTO TBL_PEDIDOS_PARCELAS (CD_PEDIDO, CD_USUARIO, CD_USUARIOAT, NR_PARCELA, DT_ATUALIZACAO, DT_VENCIMENTO, VL_PARCELA, VL_PARCELA_MOEDA)

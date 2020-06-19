@@ -26,13 +26,13 @@ include_once '../layout/head.php';
                     <label for="codigoPedido">Código do pedido:</label>
                 </div>
                 <div class="col-2">
-                    <input type="text" name="codigoPedido" class="form-control form-control-sm" autofocus>
+                    <input type="text" name="codigoPedido" class="form-control form-control-sm" autocomplete="off" autofocus>
                 </div>
                 <div class="col-2">
                     <label for="identificacaoCliente">Nome ou CPF/CNPJ</label>
                 </div>
                 <div class="col-4">
-                    <input type="text" name="identificacaoCliente" class="form-control form-control-sm">
+                    <input type="text" name="identificacaoCliente" class="form-control form-control-sm" autocomplete="off">
                 </div>
                 <div class="col-2">
                     <button class="btn btn-primary btn-sm">Buscar pedido</button>
@@ -154,6 +154,51 @@ include_once '../layout/head.php';
             atualizaTotal();
         }
 
+        const alteraPercentualDesconto = (prDesconto, unitario, quantidade, item) => {
+            prDesconto = parseFloat(prDesconto).toFixed(2);
+            unitario = parseFloat(parseFloat(unitario).toFixed(2));
+            let novoValor = 0.00;
+            let totalBruto = parseFloat(unitario) * quantidade;
+            if (prDesconto > 0) {
+                let valorDesconto = totalBruto * (prDesconto / 100);
+                novoValor = totalBruto - valorDesconto;
+                valorDesconto = formatMoney(valorDesconto);
+                $(`input[name="vl-desconto-item-${item}"]`).val(valorDesconto);
+            } else {
+                novoValor = totalBruto;
+                $(`input[name="vl-desconto-item-${item}"]`).val('0,00');
+                $(`input[name="pr-desconto-item-${item}"]`).val('0.00');
+            }
+            novoValor = formatMoney(novoValor);
+            $(`#total-item-${item}`).html(novoValor);
+            atualizaTotal();
+        }
+
+        const alteraValorDesconto = (vlDesconto, quantidade, item) => {
+            vlDesconto = vlDesconto.replace('.', '');
+            vlDesconto = vlDesconto.replace(',', '.');
+            vlDesconto = parseFloat(vlDesconto).toFixed(2);
+            let unitario = $(`input[name="unitario-item-${item}"]`).val();
+            unitario = unitario.replace('.', '');
+            unitario = unitario.replace(',', '.');
+            unitario = parseFloat(parseFloat(unitario).toFixed(2));
+            let novoValor = 0.00;
+            let totalBruto = parseFloat(unitario) * quantidade;
+            if (vlDesconto > 0) {
+                let prDesconto = (vlDesconto/totalBruto)*100;
+                prDesconto = parseFloat(prDesconto).toFixed(2);
+                novoValor = totalBruto - vlDesconto;
+                $(`input[name="pr-desconto-item-${item}"]`).val(prDesconto);
+            } else {
+                novoValor = totalBruto;
+                $(`input[name="vl-desconto-item-${item}"]`).val('0,00');
+                $(`input[name="pr-desconto-item-${item}"]`).val('0.00');
+            }
+            novoValor = formatMoney(novoValor);
+            $(`#total-item-${item}`).html(novoValor);
+            atualizaTotal();
+        }
+
         const atualizaTotal = () => {
             let valorAtualizado = 0.00;
             let itens = $('.valorTotalItem');
@@ -184,6 +229,18 @@ include_once '../layout/head.php';
                 $('#tabela-pedido-produtos').html(response.itens);
                 $('#div-footer').html(response.botao);
                 $(".valorAlteracao").maskMoney({
+                    allowNegative: false,
+                    thousands: '.',
+                    decimal: ',',
+                    affixesStay: false
+                });
+                $(".percentualDescontoAlteracao").maskMoney({
+                    allowNegative: false,
+                    thousands: '',
+                    decimal: '.',
+                    affixesStay: false
+                });
+                $(".valorDescontoAlteracao").maskMoney({
                     allowNegative: false,
                     thousands: '.',
                     decimal: ',',
@@ -293,7 +350,11 @@ include_once '../layout/head.php';
             for (let i = 0; i < valores.length; i++) {
                 let name = valores[i].name;
                 let value = valores[i].value;
-                let c = `${name}|${value}`;
+                let item = name.split("-");
+                item = item[2];
+                let vDesconto = $(`input[name="vl-desconto-item-${item}"]`).val();
+                let pDesconto = $(`input[name="pr-desconto-item-${item}"]`).val();
+                let c = `${name}|${value}|${vDesconto}|${pDesconto}`;
                 dados.push(c);
             }
             $.ajax({
