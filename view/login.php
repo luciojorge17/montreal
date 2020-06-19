@@ -63,7 +63,8 @@ include_once '../layout/head.php';
                 $('.form-signin button[type="submit"]').html('Entrar');
                 let response = JSON.parse(data);
                 if (response.autorizado == 1) {
-                    window.location.replace('consulta_materiais.php');
+                    //window.location.replace('consulta_materiais.php');
+					window.location.reload();
                 } else {
                     $('input[name="login"]').focus();
                     $('.form-signin').append(`

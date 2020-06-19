@@ -5,6 +5,7 @@
     <link rel="shortcut icon" type="image/png" href="../assets/images/favicon.gif"/>
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/css/main.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.4/jquery-confirm.min.css">
+    <link rel="stylesheet" href="../assets/css/jquery-confirm.css">
+    <link rel="stylesheet" href="../lib/fontawesome-free/css/all.css">
     <title>Questor - <?php echo $title; ?></title>
 </head>
