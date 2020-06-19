@@ -66,6 +66,23 @@ include_once '../layout/head.php';
     <?php include_once '../layout/script.php'; ?>
 
     <script>
+        window.onload = () => {
+            $.ajax({
+                url: '../controller/usuarios.php',
+                type: 'post',
+                data: {
+                    action: 'verificaPermissaoDesconto'
+                }
+            }).then((data) => {
+                let response = JSON.parse(data);
+                if (response == 0) {
+                    window.location.replace('consulta_materiais.php');
+                }
+            }).fail((jqXHR, textStatus, errorThrown) => {
+                showError('Erro no servidor, tente novamente!');
+            });
+        }
+
         $('#form-pesquisa-pedido').on('submit', (e) => {
             e.preventDefault();
             $('#tabela-pedido').empty();

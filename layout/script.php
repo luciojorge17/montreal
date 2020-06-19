@@ -33,6 +33,26 @@
         });
     }
 
+    const verificaPermissaoDesconto = () => {
+        let action = 'verificaPermissaoDesconto';
+        $.ajax({
+            url: '../controller/usuarios.php',
+            type: 'post',
+            data: {
+                action
+            }
+        }).then((data) => {
+            let response = JSON.parse(data);
+            if (response == 0) {
+                showError('Você não tem permissão para acessar essa página!');
+            } else{
+                window.location.replace('pedidos.php');
+            }
+        }).fail((jqXHR, textStatus, errorThrown) => {
+            showError('Erro no servidor, tente novamente!');
+        });
+    }
+
     const showSuccess = (text) => {
         $.alert({
             icon: 'fas fa-check',

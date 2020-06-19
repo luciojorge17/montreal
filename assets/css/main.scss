@@ -25,6 +25,15 @@ table{
 #tabela-materiais{
     overflow-y: scroll;
     max-height: 20vh;
+    table tbody{
+        tr{
+            transition: .15s linear;
+        }
+        .active-row{
+            border: 4px solid #5858FA;
+            background: #fafafa;
+        }
+    }
 }
 
 #tabela-pedido-produtos{

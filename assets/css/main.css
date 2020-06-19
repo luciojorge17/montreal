@@ -26,6 +26,16 @@ table {
   max-height: 20vh;
 }
 
+#tabela-materiais table tbody tr {
+  -webkit-transition: .15s linear;
+  transition: .15s linear;
+}
+
+#tabela-materiais table tbody .active-row {
+  border: 4px solid #5858FA;
+  background: #fafafa;
+}
+
 #tabela-pedido-produtos {
   overflow-y: scroll;
   max-height: 50vh;

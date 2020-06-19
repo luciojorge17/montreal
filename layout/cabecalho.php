@@ -15,7 +15,7 @@
                     <a class="nav-link" href="consulta_materiais.php">Consulta de materiais</a>
                 </li>
                 <li class="nav-item <?php echo $menu[1];?>">
-                    <a class="nav-link" href="pedidos.php">Pedidos</a>
+                    <a class="nav-link" href="javascript:void(0)" onclick="verificaPermissaoDesconto()">Pedidos</a>
                 </li>
             </ul>
             <div class="ml-auto">

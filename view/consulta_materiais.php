@@ -1,8 +1,8 @@
 <?php
-    session_start();
-    if(!isset($_SESSION['nome_usuario'])){
-        header('Location:login.php');
-    }
+session_start();
+if (!isset($_SESSION['nome_usuario'])) {
+    header('Location:login.php');
+}
 ?>
 
 <!DOCTYPE html>
@@ -60,7 +60,11 @@ include_once '../layout/head.php';
                 beforeSend: () => $('#tabela-materiais').html(`<p class="text-center">Aguarde, pesquisando materiais...</p>`)
             }).then((data) => {
                 let response = JSON.parse(data);
-                $('#tabela-materiais').html(response);
+                $('#tabela-materiais').html(response.produtos);
+                if (response.primeiraConsulta != 0) {
+                    listaDadosMaterial(e,response.primeiraConsulta);
+                    focarElemento('index-1');
+                }
             }).fail((jqXHR, textStatus, errorThrown) => {
                 let message = `Ocorreu um erro, tente novamente!`;
                 setTimeout(() => {
@@ -75,7 +79,16 @@ include_once '../layout/head.php';
             });
         });
 
-        const listaDadosMaterial = (id) => {
+        const focarElemento = (id) => {
+            $(`#tabela-materiais table tbody tr`).removeClass('active-row');
+            $(`#${id}`).addClass('active-row');
+            document.getElementById(id).scrollIntoView(true);
+        }
+
+        const listaDadosMaterial = (event, id) => {
+            if(event.id != undefined){
+                focarElemento(event.id);
+            }
             let action = 'dadosMaterialById';
             $.ajax({
                 url: '../controller/materiais.php',
