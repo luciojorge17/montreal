@@ -1,0 +1,51 @@
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&display=swap");
+* {
+  font-family: 'Open Sans', sans-serif;
+}
+
+.navbar {
+  padding: 0 !important;
+}
+
+.navbar .navbar-nav .nav-item .nav-link {
+  color: #fff !important;
+  font-weight: 600;
+}
+
+.active {
+  background: #bdbdbdaa;
+  border-radius: 5px;
+}
+
+table {
+  font-size: 12px !important;
+}
+
+#tabela-materiais {
+  overflow-y: scroll;
+  max-height: 20vh;
+}
+
+#tabela-pedido-produtos {
+  overflow-y: scroll;
+  max-height: 50vh;
+}
+
+#material-detalhes {
+  background: #fafafa;
+  padding: 5px 0;
+}
+
+#material-detalhes label {
+  font-size: 12px !important;
+}
+
+input {
+  font-size: 12px !important;
+}
+
+#tabela-estoque {
+  overflow-y: scroll !important;
+  max-height: 15vh !important;
+}
+/*# sourceMappingURL=main.css.map */
