@@ -51,13 +51,13 @@ switch ($action) {
                 } else {
                     $ativo = '<i class="fas fa-check"></i>';
                 }
-                $valor_venda = number_format(odbc_result($consulta, 'vl_venda'), 2, ",", ".");
-                $observacoes = utf8_encode(odbc_result($consulta, 'ds_obs'));
-                if ($contador == 1) {
+                if($contador == 1){
                     $retorno['primeiraConsulta'] = $codigo;
                 }
+                $valor_venda = number_format(odbc_result($consulta, 'vl_venda'), 2, ",", ".");
+                $observacoes = utf8_encode(odbc_result($consulta, 'ds_obs'));
                 $retorno['produtos'] .= '
-                        <tr id="index-' . $contador . '" tabindex="' . $contador . '" onclick="listaDadosMaterial(this,' . $codigo . ')" style="cursor: pointer;">
+                        <tr id="index-' . $contador . '" data-produto="'.$codigo.'" tabindex="' . $contador . '" onclick="listaDadosMaterial(this,' . $codigo . ')" style="cursor: pointer;">
                             <th scope="row">' . $nome_material   . '</th>
                             <td>' . $codigo . '</td>
                             <td>' . $codigo_fabricante . '</td>
@@ -73,8 +73,10 @@ switch ($action) {
                         </tbody>
                     </table>
                 ';
+            $retorno['qtdProdutos'] = $contador;
         } else {
             $retorno['primeiraConsulta'] = 0;
+            $retorno['qtdProdutos'] = 0;
             $retorno['produtos'] = '<p class="text-center">Nenhum produto encontrado com o termo "' . $pesquisa . '"</p>';
         }
         echo json_encode($retorno);

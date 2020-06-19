@@ -27,7 +27,7 @@ include_once '../layout/head.php';
                 </div>
                 <div class="col-6">
                     <input type="hidden" name="action" value="listar">
-                    <input type="text" name="pesquisaMaterial" class="form-control form-control-sm" required autofocus>
+                    <input type="text" name="pesquisaMaterial" class="form-control form-control-sm" autocomplete="off" required autofocus>
                 </div>
                 <div class="col-2">
                     <button class="btn btn-primary btn-sm">Buscar produtos</button>
@@ -49,6 +49,44 @@ include_once '../layout/head.php';
     <?php include_once '../layout/script.php'; ?>
 
     <script>
+        var qtdProdutos = 0;
+
+        $(document).on('keyup', (e) => {
+            if (qtdProdutos > 1) {
+                let index = 1,
+                    codigo = 0;
+                switch (event.key) {
+                    case 'ArrowUp':
+                        event.preventDefault();
+                        if ($('#index-1').hasClass('active-row')) {
+                            index = qtdProdutos;
+                            focarElemento(`index-${index}`);
+                        } else {
+                            index = parseInt($('.active-row').attr('tabindex')) - 1;
+                            focarElemento(`index-${index}`);
+                        }
+                        codigo = $(`#index-${index}`).attr('data-produto');
+                        listaDadosMaterial(null, codigo);
+                        break;
+                    case 'ArrowDown':
+                        event.preventDefault();
+                        index = qtdProdutos;
+                        if ($(`#index-${index}`).hasClass('active-row')) {
+                            index = 1;
+                            focarElemento(`index-${index}`);
+                        } else {
+                            index = parseInt($('.active-row').attr('tabindex')) + 1;
+                            focarElemento(`index-${index}`);
+                        }
+                        codigo = $(`#index-${index}`).attr('data-produto');
+                        listaDadosMaterial(null, codigo);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        });
+
         $('#form-pesquisa-material').on('submit', (e) => {
             e.preventDefault();
             $('#material-detalhes').empty();
@@ -61,9 +99,10 @@ include_once '../layout/head.php';
             }).then((data) => {
                 let response = JSON.parse(data);
                 $('#tabela-materiais').html(response.produtos);
-                if (response.primeiraConsulta != 0) {
-                    listaDadosMaterial(e,response.primeiraConsulta);
+                if (response.qtdProdutos > 0) {
+                    listaDadosMaterial(e, response.primeiraConsulta);
                     focarElemento('index-1');
+                    qtdProdutos = response.qtdProdutos;
                 }
             }).fail((jqXHR, textStatus, errorThrown) => {
                 let message = `Ocorreu um erro, tente novamente!`;
@@ -85,9 +124,11 @@ include_once '../layout/head.php';
             document.getElementById(id).scrollIntoView(true);
         }
 
-        const listaDadosMaterial = (event, id) => {
-            if(event.id != undefined){
-                focarElemento(event.id);
+        const listaDadosMaterial = (event = null, id) => {
+            if (event != null) {
+                if (event.id != undefined) {
+                    focarElemento(event.id);
+                }
             }
             let action = 'dadosMaterialById';
             $.ajax({
