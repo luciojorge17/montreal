@@ -1,5 +1,5 @@
 <?php
-    $ip_conexao = 'localhost,391';
+    $ip_conexao = 'localhost\SQLEXPRESS';
     $database = 'MONTREAL';
     $usuario = 'sa';
     $senha = '0215@aaws';  

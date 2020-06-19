@@ -290,10 +290,13 @@ switch ($action) {
 
             $delete = "ALTER TABLE TBL_PEDIDOS_PARCELAS DISABLE TRIGGER ALL;DELETE FROM TBL_PEDIDOS_PARCELAS WHERE CD_PEDIDO=$codigo;ALTER TABLE TBL_PEDIDOS_PARCELAS ENABLE TRIGGER ALL";
             odbc_exec($conexao, $delete);
+            $restoParcelas = $total_liquido - number_format(($total_liquido / $numeroParcelas), 2, '.', '') * $numeroParcelas;
 
             for ($n = 1; $n <= $numeroParcelas; $n++) {
-
-                $valor_parcela = $total_liquido / $numeroParcelas;
+                $valor_parcela = number_format($total_liquido / $numeroParcelas, 2, '.', '');
+                if($n == $numeroParcelas){
+                    $valor_parcela += $restoParcelas;
+                }
                 $vencimento = date('Y-d-m H:i:s', strtotime($vencimentos[$n])).".000";
 
                 $insertParcelas = "INSERT INTO TBL_PEDIDOS_PARCELAS (CD_PEDIDO, CD_USUARIO, CD_USUARIOAT, NR_PARCELA, DT_ATUALIZACAO, DT_VENCIMENTO, VL_PARCELA, VL_PARCELA_MOEDA)
